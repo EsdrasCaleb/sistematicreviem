@@ -6,4 +6,4 @@ done ai assisted
 to install pip localy use
 python -m venv venv
 source venv/bin/activate
-pip install -r requirements.txt
+pip install -r requirements.txt 
