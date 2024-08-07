@@ -1,0 +1,6 @@
+scholarly
+beautifulsoup4
+pandas
+bibtexparser
+transformers
+langdetect
