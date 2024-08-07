@@ -1,7 +1,17 @@
 import os
 import bibtexparser
 import pandas as pd
+from langdetect import detect
+from langdetect.lang_detect_exception import LangDetectException
 
+def detect_language(text):
+    if(text!=''):
+        try:
+            return detect(text)
+        except LangDetectException:
+            return ''
+    else:
+        return ''
 
 def parse_bibtex_file(filepath):
     with open(filepath, 'r') as bibtex_file:
@@ -18,10 +28,11 @@ def extract_entry_info(entry):
     source = entry.get('journal', '') or entry.get('booktitle', '') or entry.get('publisher', '')
     abstract = entry.get('abstract', '')
     link = entry.get('url', '')
-    language = entry.get('language', '')
+    language = entry.get('language', detect_language(abstract))
     doi = entry.get('doi', '')
     references = entry.get('references', '')
     num_pages = entry.get('pages', '')
+    keywords = entry.get('keywords', entry.get('author_keywords',''))
 
     return {
         'Title': title,
@@ -34,7 +45,8 @@ def extract_entry_info(entry):
         'Language': language,
         'DOI': doi,
         'References': references,
-        'Number of Pages': num_pages
+        'Number of Pages': num_pages,
+        'Keywords': keywords,
     }
 
 
@@ -58,7 +70,7 @@ def save_to_csv(entries, output_filepath):
 
 # Directory containing the .bib files
 bibtex_directory = 'bibtex'  # Update this to your directory
-output_csv = 'result.csv'
+output_csv = 'resultbitex.csv'
 
 # Process .bib files and save to CSV
 all_entries = process_bibtex_files(bibtex_directory)

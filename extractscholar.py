@@ -1,71 +1,37 @@
 import scholarly
-import requests
-from bs4 import BeautifulSoup
 import pandas as pd
+from langdetect import detect
+from langdetect.lang_detect_exception import LangDetectException
 
+def detect_language(text):
+    if(text!=''):
+        try:
+            return detect(text)
+        except LangDetectException:
+            return ''
+    else:
+        return ''
 
-def get_additional_info(link):
-    """
-    Scrape additional information from the paper's page.
-    This function returns abstract, language, DOI, references, and number of pages if available.
-    """
-    abstract = None
-    language = None
-    doi = None
-    references = None
-    num_pages = None
-
-    try:
-        response = requests.get(link)
-        soup = BeautifulSoup(response.text, 'html.parser')
-
-        # Example: Scrape abstract (depends on the structure of the page)
-        abstract_tag = soup.find('meta', {'name': 'description'})
-        if abstract_tag:
-            abstract = abstract_tag['content']
-
-        # Example: Scrape DOI
-        doi_tag = soup.find('a', {'href': lambda x: x and 'doi.org' in x})
-        if doi_tag:
-            doi = doi_tag.text.strip()
-
-        # Example: Scrape number of pages (if available)
-        pages_tag = soup.find(text='Pages')
-        if pages_tag and pages_tag.next:
-            num_pages = pages_tag.next.strip()
-
-        # Example: Scrape references (this could vary greatly by source)
-        references_tag = soup.find(text='References')
-        if references_tag and references_tag.next:
-            references = references_tag.next.strip()
-
-        # Additional scraping logic for language, etc., can be added here
-
-    except Exception as e:
-        print(f"Error scraping {link}: {e}")
-
-    return abstract, language, doi, references, num_pages
-
-
-def search_scholar(query, num_results=20, start_year=2005, end_year=2025):
+def search_scholar(query):
     search_query = scholarly.search_pubs(query)
     papers = []
 
     for i, paper in enumerate(search_query):
-        if i >= num_results:
-            break
-
         # Filter by year
-        if paper['pub_year'] and (start_year <= paper['pub_year'] <= end_year):
+        if paper['pub_year']:
             title = paper.get('bib', {}).get('title', '')
             year = paper.get('pub_year', '')
             num_citations = paper.get('num_citations', 0)
             authors = ', '.join(paper.get('bib', {}).get('author', []))
             source = paper.get('bib', {}).get('venue', '')
             link = paper.get('pub_url', '')
+            abstract = paper.get('bib', {}).get('abstract', '')
+            language = paper.get('bib', {}).get('language', detect_language(abstract))
+            doi = paper.get('bib', {}).get('doi', None)
+            references = paper.get('bib', {}).get('references', None)
+            num_pages = paper.get('bib', {}).get('pages', None)
+            keywords = ', '.join(paper.get('bib', {}).get('keywords', paper.get('bib', {}).get('author_keywords', [])))
 
-            # Get additional information
-            abstract, language, doi, references, num_pages = get_additional_info(link)
 
             papers.append({
                 'Title': title,
@@ -78,18 +44,19 @@ def search_scholar(query, num_results=20, start_year=2005, end_year=2025):
                 'Language': language,
                 'DOI': doi,
                 'References': references,
-                'Number of Pages': num_pages
+                'Number of Pages': num_pages,
+                'Keywords': keywords,
             })
 
     return pd.DataFrame(papers)
 
 
 # Usage example
-query = ('("code smell" OR "code smells" OR "bad smells" OR "antipattern" OR "antipatterns") AND game and  ('
-         '"programming" OR "development" ) AND ("software testing" OR "tests" OR "unit testing" OR "automated '
-         'testing" OR "design patterns") -gamification')
-df = search_scholar(query, num_results=20)
-print(df)
+query = ('("game development" OR "game programming" OR "video game" OR "game software") AND ( "code smell" OR "bad '
+         'smell" OR "technical debt" OR "antipattern" ) AND ( "test" OR "design pattern" ) -gamification')
+df = search_scholar(query)
 
 # Save to CSV
 df.to_csv('scholar_results.csv', index=False)
+
+print('Merged BibTeX entries saved to scholar_results.csv')
