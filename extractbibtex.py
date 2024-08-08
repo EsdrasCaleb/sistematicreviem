@@ -69,7 +69,7 @@ def save_to_csv(entries, output_filepath):
 
 
 # Directory containing the .bib files
-bibtex_directory = 'bibtex'  # Update this to your directory
+bibtex_directory = 'bibtex2'  # Update this to your directory
 output_csv = 'resultbitex.csv'
 
 # Process .bib files and save to CSV

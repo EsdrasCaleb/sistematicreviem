@@ -4,3 +4,6 @@ pandas
 bibtexparser
 transformers
 langdetect
+torch
+tensorflow
+flax
