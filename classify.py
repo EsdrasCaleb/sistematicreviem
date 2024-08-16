@@ -1,7 +1,7 @@
 import pandas as pd
 
 # Load your dataset
-df = pd.read_csv('resultsnew/classified_nobooks.csv')  # Replace with your file path
+df = pd.read_csv('results/classified.csv')  # Replace with your file path
 
 
 # Define a function to calculate the score
@@ -43,7 +43,7 @@ df_filtered = df[df['Score'] >= 5]
 df_sorted = df_filtered.sort_values(by='Score', ascending=False)
 
 # Save the sorted DataFrame to a new CSV file
-df_sorted.to_csv('resultsnew/filtered_nobook_dataset.csv', index=False)
+df_sorted.to_csv('results/filtered_classified.csv', index=False)
 df_filtered = df[df['Score'] < 5]
 df_sorted = df_filtered.sort_values(by='Score', ascending=False)
-df_sorted.to_csv('resultsnew/cuted_noobook_dataset.csv', index=False)
+df_sorted.to_csv('results/cuted_classified.csv', index=False)

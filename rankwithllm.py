@@ -23,7 +23,6 @@ def classify_text(text,keywords=None):
             print(score_label["scores"][0],keywordscore)
             return score_label["scores"][0],keywordscore
         else:
-            print('nokeywords')
             print( score_label["scores"][0])
             return score_label["scores"][0]
     else:
@@ -31,12 +30,11 @@ def classify_text(text,keywords=None):
             print('blank')
             return 0,0,0
         else:
-            print('nokeywords')
             return 0,0
 
 
 # Load the dataset
-df = pd.read_csv('resultsnew/filterlanguage_all.csv')
+df = pd.read_csv('results/onlyenglsih_nobooks.csv')
 #df['Keywords'] = df['Keywords'].fillna('')
 # Classify title and abstract
 def apply_classification(row):
@@ -59,6 +57,6 @@ df[['Abstract Game Score']] = df['Abstract'].apply(lambda x: pd.Series(classify_
 
 
 # Save to a new CSV file
-df.to_csv('resultsnew/classified.csv', index=False)
+df.to_csv('results/classified.csv', index=False)
 
 print("Filtered and classified data saved")

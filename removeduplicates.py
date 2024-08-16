@@ -1,6 +1,5 @@
 import pandas as pd
 from langdetect import detect
-from langdetect.lang_detect_exception import LangDetectException
 
 def detect_language(text):
     try:
@@ -11,6 +10,16 @@ def detect_language(text):
             return 'unknown'
     except:
         return 'unknown'
+def merge_rows(row_group):
+    merged_row = {}
+    for column in row_group.columns:
+        # Merge non-empty values from duplicates
+        merged_value = row_group[column].dropna().unique()
+        if len(merged_value) > 0:
+            merged_row[column] = ', '.join(map(str, merged_value))
+        else:
+            merged_row[column] = None
+    return pd.Series(merged_row)
 # Load the two CSV files
 df1 = pd.read_csv('resultbitex.csv')
 df2 = pd.read_csv('scholar_results.csv')
@@ -34,23 +43,13 @@ combined_df = combined_df.groupby('Title_lower', as_index=False).first()
 mask_doi = combined_df['DOI'].notnull()
 mask_link = combined_df['Link'].notnull()
 
-df_doi = combined_df[mask_doi].drop_duplicates(subset='DOI', keep='first')
+df_doi = combined_df[mask_doi].groupby(['DOI']).apply(merge_rows).reset_index(drop=True)
 
-df_link = combined_df[~mask_doi & mask_link].drop_duplicates(subset='Link', keep='first')
+df_link = combined_df[~mask_doi & mask_link].groupby(['Link']).apply(merge_rows).reset_index(drop=True)
 final_df = pd.concat([df_doi, df_link], ignore_index=True)
-# Detect language where 'Language' is missing
-def detect_language_from_abstract_or_title(row):
-    if pd.isnull(row['Language']):
-        if pd.isnull(row['Abstract']):
-            return detect_language(row['Title'])
-        else:
-            return detect_language(row['Abstract'])
-    return row['Language']
 
-# Detect language for rows where 'Language' is missing
-combined_df['Language'] = combined_df.apply(detect_language_from_abstract_or_title, axis=1)
 
 # Save the cleaned data to a new CSV file
-final_df.to_csv('resultsnew/noduplicates.csv', index=False)
+final_df.to_csv('results/noduplicates.csv', index=False)
 
-print("Duplicates removed and data saved to 'cleaned_data.csv'.")
+print("Duplicates removed and data saved to 'noduplicates.csv'.")

@@ -9,24 +9,11 @@ def detect_language(text):
         return 'unknown'
 
 # Load the combined CSV file
-df = pd.read_csv('resultsnew/noduplicates.csv')
+df = pd.read_csv('results/noduplicates.csv')
 
-# Step 1: Filter out rows with null abstracts
-df['Detected_Language'] = df['Title'].apply(lambda x: detect_language(x) if pd.notnull(x) else 'unknown')
-df['Detected_Language_Abstract'] = df['Abstract'].apply(lambda x: detect_language(x) if pd.notnull(x) else 'unknown')
-# Define the allowed languages (using language codes)
-allowed_languages = ['en']
+df_filtered = df[df['Language'].str.lower().isin(['en', 'english'])]
+df_removed = df[~df['Language'].str.lower().isin(['en', 'english'])]
 
-# Step 3: Filter the DataFrame based on the detected language
-filtered_df = df[
-    df['Detected_Language_Abstract'].str.lower().isin(allowed_languages) &
-    df['Abstract'].notnull()
-]
-
-filtered_df2 = filtered_df[
-    filtered_df['Detected_Language'].str.lower().isin(allowed_languages)
-]
-# Save the filtered data to a new CSV file
-filtered_df2.to_csv('resultsnew/filterlanguage_all.csv', index=False)
-
-print("Filtered data saved to 'filtered_results.csv'.")
+df_filtered.to_csv('results/onlyenglsih.csv', index=False)
+df_removed.to_csv('results/removedbylanguage.csv', index=False)
+print("Filtered data saved in results to 'removedbylanguage.csv' 'onlyenglsih.csv'.")
