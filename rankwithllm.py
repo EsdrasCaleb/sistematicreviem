@@ -34,7 +34,7 @@ def classify_text(text,keywords=None):
 
 
 # Load the dataset
-df = pd.read_csv('results/onlyenglsih_nobooks.csv')
+df = pd.read_csv('resultbitex2.csv')
 #df['Keywords'] = df['Keywords'].fillna('')
 # Classify title and abstract
 def apply_classification(row):
