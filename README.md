@@ -1,21 +1,66 @@
 # sistematicreviem
 
-This project aims to extract bibtexfiles and exort all them into a csv easing the task of sistematic reviews, 
-done AI assisted
+This project aims to assist in systematic reviews by extracting BibTeX files and exporting them into a CSV format, all while utilizing AI to enhance the process.
 
-to install pip localy use
-```
-python -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt 
-```
-The first thing to do is acces the extract scholar and put in it the desired query, its recomended use a query that 
-extract less than 1000 results from googlescholar
+## Installation
 
-second thing is go to all portals where you want to serach and extract from them the bibtex of your search and put then
-in bibtex folder
+To set up the project locally, follow these steps:
 
-after this create the results folder and execute the removeduplicates.py 
-ajust removebylanguageandabstract to your needs and execute it. If you want filter some type of domain of result you can modify
-the nobooks to it. Adjust the rankwithllm to use the term you want to rank in the search.
-Modify classify to pontuate your results as you wish and modify the cut note
+1. **Create a Virtual Environment**:
+   ```bash
+   python -m venv venv
+   ```
+
+2. **Activate the Virtual Environment**:
+   - On macOS/Linux:
+     ```bash
+     source venv/bin/activate
+     ```
+   - On Windows:
+     ```bash
+     venv\Scripts\activate
+     ```
+
+3. **Install the Required Packages**:
+   ```bash
+   pip install -r requirements.txt 
+   ```
+
+## Usage Instructions
+
+If you are not familiar with how to run Python scripts, you can simply execute the `main.py` file. This file will guide you through the necessary steps.
+
+### Step 1: Extract Scholar Data
+
+1. Access the **extract scholar** module and input your desired query.
+   - **Note**: It is recommended to use a query that extracts fewer than 1000 results from Google Scholar.
+
+### Step 2: Collect BibTeX Entries
+
+1. Go to all relevant portals where you want to search for articles.
+2. Extract the BibTeX entries of your search results and place them in the **bibtex** folder.
+
+### Step 3: Remove Duplicates
+
+1. Create a **results** folder.
+2. Execute the `remove_duplicates.py` script.
+   - Adjust the `remove_by_language_and_abstract` function according to your needs before running the script.
+   - If you want to filter out certain domains from the results, modify the `nobooks` variable accordingly.
+   - Customize the `rank_with_llm` function to use the term you wish to rank in the search.
+
+### Step 4: Classification and Scoring
+
+1. Modify the classification functions to score your results as desired.
+2. Adjust the cut note to refine the results further.
+
+## Contributing
+
+Contributions are welcome! If you have suggestions for improvements or bug fixes, feel free to open an issue or submit a pull request.
+
+## License
+
+This project is licensed under the Apache License 2.0.
+
+---
+
+Made with help from Geto (GPT)
