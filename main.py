@@ -38,7 +38,7 @@ def main():
         else:
             # Call the extract_bibtex function and get the DataFrame
             csv_df = extract_csv(folder_path)
-            print(csv_df)
+
     if(not csv_df.empty and not bib_df.empty):
         # Combine the DataFrames
         df = pd.concat([bib_df, csv_df], ignore_index=True)
@@ -93,7 +93,7 @@ def main():
     while classification_response == "yes":
         label = input("Please enter the classification label: ")
         # Assuming you have a function to classify based on criteria
-        df[f"{label} score"] = classify_with_zero_shot(data_frame=df,candidate_labels=[label])
+        df[f"{label} score"] = classify_with_zero_shot(data_frame=df,candidate_label=label)
         print(f"Scores based on '{label}' have been added to the DataFrame.")
         classification_response = input("Do you want to classify again? (yes/no): ").strip().lower()
 

@@ -1,6 +1,7 @@
 import pandas as pd
 from keybert import KeyBERT
 from transformers import pipeline
+from tqdm import tqdm
 
 
 def extract_keywords(data_frame):
@@ -19,13 +20,17 @@ def extract_keywords(data_frame):
     def combine_and_extract(row):
         text = f"{row['title']} {row['abstract']}"
         keywords = kw_model.extract_keywords(text, keyphrase_ngram_range=(1, 3),top_n=5, stop_words='english')  # Extract top 5 keywords
-        return ', '.join([kw[0] for kw in keywords])  # Join keywords into a single string
+        # Filter keywords with a score of 0.5 or higher
+        filtered_keywords = [kw[0] for kw in keywords if kw[1] >= 0.5]
+
+        return ', '.join(filtered_keywords)  # Join keywords into a single string
 
     # Apply the keyword extraction function
-    return data_frame.apply(combine_and_extract, axis=1)
+    tqdm.pandas(desc="Extracting Keywords")
+    return data_frame.progress_apply(combine_and_extract, axis=1)
 
 
-def classify_with_zero_shot(data_frame, candidate_labels, string_name):
+def classify_with_zero_shot(data_frame, candidate_label):
     """
     Classify each row based on the candidate labels using zero-shot classification.
 
@@ -43,11 +48,12 @@ def classify_with_zero_shot(data_frame, candidate_labels, string_name):
     # Function to classify the text
     def classify(row):
         text = f"{row['title']} {row['abstract']}"
-        result = classifier(text, candidate_labels, multi_label=True)
+        result = classifier(text, [candidate_label], multi_label=False)
         return result['scores'][0]  # Return the score of the highest label
 
     # Apply the classification function
-    return data_frame.apply(classify, axis=1)
+    tqdm.pandas(desc=f"Classifing in {candidate_label}")
+    return data_frame.progress_apply(classify, axis=1)
 
 def detect_language(data_frame):
     """

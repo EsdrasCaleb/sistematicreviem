@@ -8,3 +8,4 @@ torch
 tensorflow
 flax
 keybert
+tqdm

@@ -20,7 +20,7 @@ def extract_bibtex(folder_path):
 
             for entry in bib_data.entries:
                 # Extract relevant information
-                print(entry.items())
+
 
                 keywords = []
                 if 'keywords' in entry and entry['keywords']:
@@ -37,12 +37,12 @@ def extract_bibtex(folder_path):
                 source_title = entry.get('journal', entry.get('booktitle', ''))
                 date = entry.get('year', '')
                 language = entry.get('language', '')
-                doi = entry.get('doi', '')
+                doi = entry.get('doi', '').replace('\\_', '_')
                 issn = entry.get('issn', '')
-                citations = entry.get('citation', '')
+                citations = entry.get('citation', entry.get('times-cited', ''))
                 num_pages = entry.get('pages', '')
-                references = entry.get('references', '')
-                entry_type = entry.get('ENTRYTYPE', '')
+                references = entry.get('references', entry.get('cited-references', ''))
+                entry_type = entry.get('type', entry.get('entrytype',''))
 
                 # Append extracted data to the list
                 data.append({
@@ -115,9 +115,10 @@ def extract_csv(folder_path):
             new_data = {}
             for col_name, default_column in normalized_columns.items():
                 # Ask the user for the column name, ignoring case
-                print(col_name, default_column )
-                user_input = input(f"Please specify the column for '{col_name}' (you can use + to combine columns)(default:{default_column}): ")
 
+                user_input = input(f"Please specify the column for '{col_name}' (you can use + to combine columns)(default:{default_column}): ")
+                if not user_input:
+                    user_input = default_column
                 # Split the user input by '+' and strip whitespace
                 columns_to_combine = [c.strip().lower() for c in user_input.split('+')]
 
