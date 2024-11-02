@@ -2,6 +2,7 @@ import pandas as pd
 from keybert import KeyBERT
 from transformers import pipeline
 from tqdm import tqdm
+from langdetect import detect
 
 
 def extract_keywords(data_frame):
@@ -65,8 +66,12 @@ def detect_language(data_frame):
     Adds a new column 'detected_language' to the DataFrame.
     """
     def detect_lang(row):
+        text = f"{row['abstract']}"
         try:
-            return detect(row['abstract'])
+            if isinstance(text, str) and text.strip():
+                return detect(text)
+            else:
+                return 'unknown'
         except Exception as e:
             return 'error'  # In case of an error, return 'error'
 
