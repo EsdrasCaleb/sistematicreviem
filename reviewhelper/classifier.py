@@ -75,4 +75,5 @@ def detect_language(data_frame):
         except Exception as e:
             return 'error'  # In case of an error, return 'error'
 
-    return data_frame.apply(detect_lang, axis=1)
+    tqdm.pandas(desc="Detecting Language")
+    return data_frame.progress_apply(detect_lang, axis=1)
