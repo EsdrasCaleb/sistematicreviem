@@ -4,6 +4,9 @@ from transformers import pipeline
 from tqdm import tqdm
 from langdetect import detect
 
+# Initialize zero-shot-classification pipeline with the best model
+classifier = pipeline("zero-shot-classification",
+                      model="facebook/bart-large-mnli")  # High-performing zero-shot model
 
 def extract_keywords(data_frame):
     """
@@ -20,7 +23,7 @@ def extract_keywords(data_frame):
     # Function to combine title and abstract and extract keywords
     def combine_and_extract(row):
         text = f"{row['title']} {row['abstract']}"
-        keywords = kw_model.extract_keywords(text, keyphrase_ngram_range=(1, 3),top_n=5, stop_words='english')  # Extract top 5 keywords
+        keywords = kw_model.extract_keywords(text, keyphrase_ngram_range=(1, 2),top_n=5, stop_words='english')  # Extract top 5 keywords
         # Filter keywords with a score of 0.5 or higher
         filtered_keywords = [kw[0] for kw in keywords if kw[1] >= 0.5]
 
@@ -42,9 +45,6 @@ def classify_with_zero_shot(data_frame, candidate_label):
 
     Adds a new column '{string_name} score' to the DataFrame with classification scores.
     """
-    # Initialize zero-shot-classification pipeline with the best model
-    classifier = pipeline("zero-shot-classification",
-                          model="facebook/bart-large-mnli")  # High-performing zero-shot model
 
     # Function to classify the text
     def classify(row):
@@ -77,3 +77,47 @@ def detect_language(data_frame):
 
     tqdm.pandas(desc="Detecting Language")
     return data_frame.progress_apply(detect_lang, axis=1)
+
+
+def classify_in_batches(text, candidate_keywords, batch_size=20):
+    """
+    Classifies keywords in batches to avoid overloading the model.
+
+    Parameters:
+    - text: The combined title and abstract text.
+    - candidate_keywords: List of keywords to classify.
+    - batch_size: Number of keywords per batch for classification.
+
+    Returns:
+    - filtered_keywords: Top 5 keywords with >50% confidence across all batches.
+    """
+    all_scores = []
+
+    # Process keywords in batches
+    for i in range(0, len(candidate_keywords), batch_size):
+        batch = candidate_keywords[i:i + batch_size]
+        results = classifier(text, batch)
+
+        # Collect scores for the batch
+        all_scores.extend(zip(batch, results['scores']))
+
+    # Filter keywords with confidence > 0.5 and sort by score
+    filtered_keywords = [kw for kw, score in sorted(all_scores, key=lambda x: x[1], reverse=True) if score >= 0.5]
+    return filtered_keywords[:5]  # Return top 5
+
+def extract_keywords_file(data_frame,file_path):
+    with open(file_path, 'r') as file:
+        # Read the file content and split by ', '
+        keywords_list = file.read().strip().split(', ')
+
+    def combine_and_extract_relevant_keywords(row):
+        text = f"{row['title']} {row['abstract']}"
+
+        # Step 2: Classify relevance of keywords in batches
+        filtered_keywords = classify_in_batches(text, keywords_list)
+
+        return ', '.join(filtered_keywords)  #
+
+    # Apply the keyword extraction function
+    tqdm.pandas(desc="Extracting Keywords")
+    return data_frame.progress_apply(combine_and_extract_relevant_keywords, axis=1)

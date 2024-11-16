@@ -2,7 +2,8 @@ import os
 import pandas as pd
 from reviewhelper.extract import extract_bibtex, extract_csv
 from reviewhelper.remove_duplicates import remove_duplicates
-from reviewhelper.classifier import extract_keywords, detect_language,classify_with_zero_shot
+from reviewhelper.classifier import extract_keywords, detect_language, classify_with_zero_shot, extract_keywords_file
+
 
 def main():
     # Define the default folder path
@@ -87,6 +88,16 @@ def main():
     if keywords_response == 'yes':
         df['extracted_keywords'] = extract_keywords(data_frame=df)
         print("Extracted keywords have been added to the DataFrame.")
+
+    keywords_file_response = input(
+        "Do you want to find keywords from a file in the titles and abstracts? (yes/no): ").strip().lower()
+    if keywords_file_response == 'yes':
+        default_file = "key_requirements_engineering.txt"
+        keywords_file = input(f"Give file path (default: {default_file}): )")
+        if not keywords_file:
+            keywords_file = default_file
+        df['extracted_keywords'] = extract_keywords_file(data_frame=df,file_path=keywords_file)
+        print(f"Extracted keywords of {keywords_file} have been added to the DataFrame.")
 
     # Classification Loop
     classification_response = input("Do you want to classify your results based on specific label? (yes/no): ").strip().lower()

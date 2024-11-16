@@ -10,6 +10,7 @@ def extract_bibtex(folder_path):
     # Loop through each file in the specified folder
     for filename in os.listdir(folder_path):
         if filename.endswith('.bib'):  # Assuming BibTeX files have .bib extension
+            print("Reading "+filename)
             file_path = os.path.join(folder_path, filename)
 
             with open(file_path, 'r', encoding='utf-8') as f:
@@ -17,7 +18,7 @@ def extract_bibtex(folder_path):
 
             # Parse the BibTeX file
             bib_data = bibtexparser.loads(bibtex_str)
-
+            print("File with " + str(len(bib_data.entries))+" entries")
             for entry in bib_data.entries:
                 # Extract relevant information
 
@@ -61,7 +62,7 @@ def extract_bibtex(folder_path):
                     'type': entry_type,
                     'issn':issn,
                 })
-
+    print("Added "+str(len(data))+" entries")
     # Convert the list to a DataFrame
     df = pd.DataFrame(data)
 
@@ -142,7 +143,7 @@ def extract_csv(folder_path):
             # Create a new DataFrame with the combined data
             new_df = pd.DataFrame(new_data)
             df_list.append(new_df)
-
+    print("Added " + str(len(df_list)) + " entries")
     # Combine all DataFrames into one
     combined_df = pd.concat(df_list, ignore_index=True)
 
